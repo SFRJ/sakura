@@ -49,6 +49,19 @@ Calls read from blockchain
     function getCompany(address companyAddress) returns (string,string,string,uint) {
         return (companies[companyAddress]._name, companies[companyAddress]._email, companies[companyAddress]._purpose, companies[companyAddress]._totalAmountOfShares);
     }
+
+    function getCompanyShareholders(address companyAddress) returns(address[],uint[]){
+        uint numberOfShareHolders = companies[companyAddress]._shareHoldersList.length;
+        address[] memory addresses = new address[](numberOfShareHolders);
+        uint[] memory balances = new uint[](numberOfShareHolders);
+
+        for (uint i = 0; i < numberOfShareHolders; i++) {
+            address shareHolderAddress = companies[companyAddress]._shareHoldersList[i];
+            addresses[i] = shareHolderAddress;
+            balances[i] = (companies[companyAddress]._shareHolders[shareHolderAddress].shares);    
+        }
+        return (addresses, balances);
+    }
     
 //Todo create function to return address[] this are the companies ids
 //Get company information function based on company address
@@ -70,5 +83,10 @@ Calls read from blockchain
 
     function status() returns(string) {
         return "SAKURA!!!!";
+    }
+
+    function transfer(address companyAddress, address fromAddress, address toAddress, uint amount) {
+        companies[companyAddress]._shareHolders[fromAddress].shares -= amount;
+        companies[companyAddress]._shareHolders[toAddress].shares += amount;
     }
 }
