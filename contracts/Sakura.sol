@@ -5,7 +5,6 @@ contract Sakura {
     address[] registeredCompanies;
 
     struct shareHolder {
-        string name;
         uint shares;
     }
 
@@ -14,7 +13,8 @@ contract Sakura {
         string _email;
         string _purpose;
         uint _totalAmountOfShares;
-        mapping (address => shareHolder) shareHolders; 
+        mapping (address => shareHolder) _shareHolders;
+        address[] _shareHoldersList; 
     }
     
     function Sakura() {
@@ -31,10 +31,15 @@ Sakura.deployed().newCompany("0x1234567", "silverfloat", "team@silverfloat.com",
     function newCompany(address companyAddress, string name, string email, 
         string purpose, uint totalAmountOfShares, address[] shareHolders) returns (string) {                
         companies[companyAddress] = company({_name:name,_email:email,_purpose:purpose,
-         _totalAmountOfShares:totalAmountOfShares});
+         _totalAmountOfShares:totalAmountOfShares, _shareHoldersList:shareHolders});
         registeredCompanies.push(companyAddress);
+        for(uint i = 0; i<shareHolders.length; i++) {
+            companies[companyAddress]._shareHolders[shareHolders[i]] = shareHolder(0);
+        }
         return companies[companyAddress]._name;
     }
+
+   
 /*
 Calls read from blockchain
 
@@ -56,8 +61,11 @@ Calls read from blockchain
         return registeredCompanies.length;
     }
 
-    function distributeShares(address shareHolder, uint amount) {
-
+    function distributeShares(address company) {
+        for(uint i = 0; i<companies[company]._shareHoldersList.length; i++) {
+            companies[company]._shareHolders[companies[company]._shareHoldersList[i]].shares+=10;
+            companies[company]._totalAmountOfShares-=10;
+        }
     }
 
     function status() returns(string) {
